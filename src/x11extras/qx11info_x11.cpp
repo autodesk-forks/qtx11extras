@@ -395,4 +395,36 @@ bool QX11Info::isCompositingManagerRunning(int screen)
     return native->nativeResourceForScreen(QByteArray("compositingEnabled"), scr);
 }
 
+/*!
+    This function can be used to peek into the XCB event queue.
+
+    You can call peekEventQueue() periodically when your program is busy performing
+    a long operation (for example, copying a file or performing a long-running
+    paint operation) to check if some other action should be performed instead.
+
+    The \a peeker object needs to implement the QXcbAbstractEventPeeker interface.
+    The \a option is an enum that alters the default behavior of peekEventQueue(),
+    see QXcbAbstractEventPeeker::PeekOption.
+
+    \since 5.7
+*/
+
+void QX11Info::peekEventQueue(QXcbAbstractEventPeeker *peeker, QXcbAbstractEventPeeker::PeekOption option)
+{
+    if (!peeker || !qApp)
+        return;
+    QPlatformNativeInterface *native = qApp->platformNativeInterface();
+    if (!native)
+        return;
+
+    typedef void (*PeekEventQueueFunc)(QXcbAbstractEventPeeker *peeker, QXcbAbstractEventPeeker::PeekOption option);
+    PeekEventQueueFunc func = reinterpret_cast<PeekEventQueueFunc>(native->nativeResourceFunctionForIntegration("peekeventqueue"));
+    if (!func) {
+        qWarning("Internal error: QPA plugin doesn't implement peekEventQueue");
+        return;
+    }
+
+    func(peeker, option);
+}
+
 QT_END_NAMESPACE
