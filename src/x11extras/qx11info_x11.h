@@ -35,6 +35,8 @@
 #define QX11INFO_X11_H
 
 #include <QtCore/qnamespace.h>
+#include <QtPlatformHeaders/qxcbabstracteventpeeker.h>
+
 #include "QtX11Extras/qtx11extrasglobal.h"
 
 typedef struct _XDisplay Display;
@@ -68,6 +70,8 @@ public:
     static xcb_connection_t *connection();
 
     static bool isCompositingManagerRunning(int screen = -1);
+    static void peekEventQueue(QXcbAbstractEventPeeker *peeker,
+                               QXcbAbstractEventPeeker::PeekOption option = QXcbAbstractEventPeeker::PeekDefault);
 
 private:
     QX11Info();
